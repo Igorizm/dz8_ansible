@@ -82,6 +82,10 @@
         path: /etc/default/tomcat9
         regexp: '^#?JAVA_HOME='
         line: 'JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64'
+    - name: 1.7. Remove default Tomcat webapps ROOT directory
+      file:
+        path: /var/lib/tomcat9/webapps/ROOT
+        state: absent
 
     - name: 2. Copy the compiled WAR artifact from Master to Prod (Tomcat autodeploy directory)
       copy:
