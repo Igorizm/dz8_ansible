@@ -77,6 +77,12 @@
         echo -e "[Service]\nReadWritePaths=/var/lib/tomcat9/webapps/" > /etc/systemd/system/tomcat9.service.d/override.conf
         systemctl daemon-reload
 
+    - name: 1.6. Explicitly set JAVA_HOME for Tomcat
+      lineinfile:
+        path: /etc/default/tomcat9
+        regexp: '^#?JAVA_HOME='
+        line: 'JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64'
+
     - name: 2. Copy the compiled WAR artifact from Master to Prod (Tomcat autodeploy directory)
       copy:
         src: /tmp/compiled_app.war
@@ -90,4 +96,3 @@
         name: tomcat9
         state: restarted
         enabled: yes
-
