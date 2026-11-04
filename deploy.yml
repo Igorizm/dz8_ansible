@@ -23,7 +23,7 @@
         force: yes
 
     - name: 3. Build project using Maven (compile into a .war file)
-      command: mvn clean package -Dmaven.compiler.source=1.8 -Dmaven.compiler.target=1.8
+      command: mvn clean package -Dsource=7 -Dtarget=7
       args:
         chdir: /tmp/java_build_dir
 
