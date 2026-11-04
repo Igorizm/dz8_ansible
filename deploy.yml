@@ -1,0 +1,68 @@
+---
+# ==========================================================
+# STAGE 1: Build Environment Setup & Project Compilation
+# ==========================================================
+- name: Build Java project on Builder Node
+  hosts: web                          # Target group name for Slave-1 from the inventory hosts file
+  become: yes
+  tasks:
+    - name: 1. Install Java 17, Maven build tool, and Git
+      apt:
+        name:
+          - openjdk-17-jdk
+          - maven
+          - git
+        state: present
+        update_cache: yes
+
+    - name: 2. Clone Java application source code from Git
+      git:
+        repo: 'https://github.com' # Public sample Java project repository URL
+        dest: /tmp/java_build_dir
+        version: master
+        force: yes
+
+    - name: 3. Build project using Maven (compile into a .war file)
+      command: mvn clean package
+      args:
+        chdir: /tmp/java_build_dir
+
+    - name: 4. Download (Fetch) the compiled WAR artifact to the Master server
+      fetch:
+        src: /tmp/java_build_dir/target/sample-java-app.war
+        dest: /tmp/compiled_app.war
+        flat: yes
+
+    - name: 5. Clean up temporary source code files from the Builder node
+      file:
+        path: /tmp/java_build_dir
+        state: absent
+
+# ==========================================================
+# STAGE 2: Production Environment Setup & Deployment
+# ==========================================================
+- name: Deploy compiled application to Production Node
+  hosts: db                           # Target group name for Slave-2 from the inventory hosts file
+  become: yes
+  tasks:
+    - name: 1. Install Java 17 Runtime and Tomcat web server
+      apt:
+        name:
+          - openjdk-17-jre
+          - tomcat9
+        state: present
+        update_cache: yes
+
+    - name: 2. Copy the compiled WAR artifact from Master to Prod (Tomcat autodeploy directory)
+      copy:
+        src: /tmp/compiled_app.war
+        dest: /var/lib/tomcat9/webapps/ROOT.war # Replacing the default Tomcat root page with our app
+        owner: tomcat
+        group: tomcat
+        mode: '0644'
+
+    - name: 3. Ensure the Tomcat service is running and enabled on boot
+      service:
+        name: tomcat9
+        state: started
+        enabled: yes
