@@ -60,7 +60,7 @@
 # STAGE 2: Production Environment Setup & Deployment
 # ==========================================================
 - name: Deploy compiled application to Production Node
-  hosts: db                           # Target group name for Slave-2 from the inventory hosts file
+  hosts: db                           # Slave-2 (Production server)
   become: yes
   tasks:
     - name: 1. Install Java 17 Runtime and Tomcat web server
@@ -76,12 +76,11 @@
         mkdir -p /etc/systemd/system/tomcat9.service.d
         echo -e "[Service]\nReadWritePaths=/var/lib/tomcat9/webapps/" > /etc/systemd/system/tomcat9.service.d/override.conf
         systemctl daemon-reload
-      notify: restart tomcat
 
     - name: 2. Copy the compiled WAR artifact from Master to Prod (Tomcat autodeploy directory)
       copy:
         src: /tmp/compiled_app.war
-        dest: /var/lib/tomcat9/webapps/ROOT.war # Replacing the default Tomcat root page with our app
+        dest: /var/lib/tomcat9/webapps/ROOT.war
         owner: tomcat
         group: tomcat
         mode: '0644'
@@ -89,5 +88,6 @@
     - name: 3. Ensure the Tomcat service is running and enabled on boot
       service:
         name: tomcat9
-        state: started
+        state: restarted
         enabled: yes
+
