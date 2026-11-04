@@ -70,6 +70,11 @@
           - tomcat9
         state: present
         update_cache: yes
+    - name: 1.5. Fix Tomcat directory bug (Create policy folder)
+      file:
+        path: /etc/systemd/system/tomcat9.service.d
+        state: directory
+        mode: '0755'
 
     - name: 2. Copy the compiled WAR artifact from Master to Prod (Tomcat autodeploy directory)
       copy:
