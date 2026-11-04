@@ -17,7 +17,7 @@
 
     - name: 2. Clone Java application source code from Git
       git:
-        repo: 'https://github.com' # Public sample Java project repository URL
+        repo: 'https://github.com/boxfuse/boxfuse-sample-java-war-hello' # Public sample Java project repository URL
         dest: /tmp/java_build_dir
         version: master
         force: yes
@@ -29,7 +29,7 @@
 
     - name: 4. Download (Fetch) the compiled WAR artifact to the Master server
       fetch:
-        src: /tmp/java_build_dir/target/sample-java-app.war
+        src: /tmp/java_build_dir/target/hello-1.0.war
         dest: /tmp/compiled_app.war
         flat: yes
 
