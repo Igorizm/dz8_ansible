@@ -70,11 +70,13 @@
           - tomcat9
         state: present
         update_cache: yes
-    - name: 1.5. Fix Tomcat directory bug (Create policy folder)
-      file:
-        path: /etc/systemd/system/tomcat9.service.d
-        state: directory
-        mode: '0755'
+
+    - name: 1.5. Fix Tomcat systemd sandbox permissions
+      shell: |
+        mkdir -p /etc/systemd/system/tomcat9.service.d
+        echo -e "[Service]\nReadWritePaths=/var/lib/tomcat9/webapps/" > /etc/systemd/system/tomcat9.service.d/override.conf
+        systemctl daemon-reload
+      notify: restart tomcat
 
     - name: 2. Copy the compiled WAR artifact from Master to Prod (Tomcat autodeploy directory)
       copy:
